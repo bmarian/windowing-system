@@ -1,0 +1,21 @@
+{
+  "name": "windowing-system",
+  "title": "Windowing System",
+  "description": "Windowing System",
+  "systems": [],
+  "version": "0.0.1",
+  "author": "bmarian",
+  "scripts": [],
+  "esmodules": [
+    "windowing-system.js"
+  ],
+  "styles": [
+    "windowing-system.css"
+  ],
+  "minimumCoreVersion": "0.6.6",
+  "compatibleCoreVersion": "0.6.6",
+  "url": "https://github.com/bmarian/windowing-system",
+  "manifest": "",
+  "download": "",
+  "changelog": "https://github.com/bmarian/windowing-system/releases"
+}
