@@ -15,7 +15,7 @@
   "minimumCoreVersion": "0.6.6",
   "compatibleCoreVersion": "0.6.6",
   "url": "https://github.com/bmarian/windowing-system",
-  "manifest": "",
+  "manifest": "https://raw.githubusercontent.com/bmarian/windowing-system/master/src/module.json",
   "download": "",
   "changelog": "https://github.com/bmarian/windowing-system/releases"
 }
