@@ -84,6 +84,7 @@ class ActorSheetWindow {
         $closeButton.contents().last().remove();
 
         const $windowTitle = $sheet.find(this._defaultClasses.WINDOW_TITLE_QRY);
+        const $canvas = $(this._defaultClasses.CANVAS_QRY);
         $windowTitle.on('mousedown', () => {
             let oldY = 0;
             let mouseUpTrigger = true;
@@ -91,15 +92,48 @@ class ActorSheetWindow {
                 const position = $sheet.position();
                 const pageY = event.pageY;
 
-                if (position.top === 0 && position.left === 0 && pageY > oldY) {
+                if (position.top === 0 && pageY > oldY) {
                     $restoreButton.trigger('click');
                     mouseUpTrigger = false;
                 }
                 oldY = pageY;
+
+                Utils.debug(position, false);
             }).one('mouseup', () => {
                 $windowTitle.unbind('mousemove');
-                if (mouseUpTrigger && $sheet.position().top <= 5) {
-                    $maximizeButton.trigger('click');
+
+                const position = $sheet.position();
+                const canvasWidth = Number($canvas.attr('width'));
+                const canvasHeight = Number($canvas.attr('height'));
+                const sheetWidth = $sheet.width();
+
+                if (!mouseUpTrigger) return;
+
+                if (position.top <= 5) {
+                    // Fullscreen if the header touches the top
+                    if (position.left > 5 && position.left + sheetWidth < canvasWidth - 5) {
+                        Utils.debug('fullscreen');
+                        $maximizeButton.trigger('click');
+                    }
+                } else {
+                    const newPosition = {width: canvasWidth / 2 - 2, height: canvasHeight, left: 0, top: 0}
+
+                    // Left half
+                    if (position.left <= 5) {
+                        Utils.debug('left half');
+                        $maximizeButton.trigger('click');
+
+                        sheetObj.position = newPosition
+                        $sheet.css(newPosition);
+
+                    } else if (position.left + sheetWidth >= canvasWidth - 5) {
+                        Utils.debug('right half');
+                        $maximizeButton.trigger('click');
+
+                        newPosition.left = newPosition.width + 2;
+                        sheetObj.position = newPosition
+                        $sheet.css(newPosition);
+                    }
                 }
             });
         });
