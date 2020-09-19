@@ -1,5 +1,5 @@
-import Utils from "../Utils";
 import Defaults from "../Defaults";
+import Utils from "../Utils";
 
 class ActorSheetWindow {
     private static _instance: ActorSheetWindow;
@@ -34,12 +34,8 @@ class ActorSheetWindow {
         const $maximizeButton = $(this._generateButtonHTML('resize-max', 'fa-window-maximize'));
         const $restoreButton = $(this._generateButtonHTML('resize-restore', 'fa-window-restore'));
         const $canvas = $(this._defaultClasses.CANVAS_QRY);
-        const oldSize = {
-            width: 0,
-            height: 0,
-            left: 0,
-            top: 0,
-        }
+        const $resizeHandle = $sheet.find(this._defaultClasses.RESIZABLE_HANDLE_QRY);
+        let oldPosition = sheetObj.position;
 
         // Width
         const $sidebar = $(this._defaultClasses.SIDEBAR_QRY);
@@ -52,23 +48,25 @@ class ActorSheetWindow {
         $where.before($maximizeButton, $restoreButton);
 
         $maximizeButton.on('click', event => {
-            const width = $canvas.attr('width');
-            const height = $canvas.attr('height');
+            const canvasWidth = Number($canvas.attr('width'));
+            const canvasHeight = Number($canvas.attr('height'));
 
-            oldSize.width = $sheet.width();
-            oldSize.height = $sheet.height();
-            const position = $sheet.position();
-            oldSize.left = position.left;
-            oldSize.top = position.top;
+            oldPosition = sheetObj.position;
+            const newPosition = {width: canvasWidth, height: canvasHeight, left: 0, top: 0}
 
-            $sheet.animate({width: width, height: height, left: 0, top: 0});
+            sheetObj.position = newPosition
+            $sheet.css(newPosition);
+
+            $resizeHandle.hide(); // hide the resize button
             $maximizeButton.hide();
             $restoreButton.show();
         })
 
         $restoreButton.on('click', event => {
-            $sheet.animate({width: oldSize.width, height: oldSize.height, left: oldSize.left, top: oldSize.top});
+            sheetObj.position = oldPosition;
+            $sheet.css(oldPosition);
 
+            $resizeHandle.show(); // show the resize button
             $maximizeButton.show();
             $restoreButton.hide();
         }).hide();
@@ -84,6 +82,27 @@ class ActorSheetWindow {
 
         // This should remove the text for the close button (to look more like a Windows window)
         $closeButton.contents().last().remove();
+
+        const $windowTitle = $sheet.find(this._defaultClasses.WINDOW_TITLE_QRY);
+        $windowTitle.on('mousedown', () => {
+            let oldY = 0;
+            let mouseUpTrigger = true;
+            $windowTitle.on('mousemove', (event) => {
+                const position = $sheet.position();
+                const pageY = event.pageY;
+
+                if (position.top === 0 && position.left === 0 && pageY > oldY) {
+                    $restoreButton.trigger('click');
+                    mouseUpTrigger = false;
+                }
+                oldY = pageY;
+            }).one('mouseup', () => {
+                $windowTitle.unbind('mousemove');
+                if (mouseUpTrigger && $sheet.position().top <= 5) {
+                    $maximizeButton.trigger('click');
+                }
+            });
+        });
     }
 }
 

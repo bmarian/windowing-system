@@ -1,9 +1,9 @@
 import Utils from "./module/Utils";
 import ActorSheetWindow from "./module/windows/ActorSheetWindow";
-//
-// Hooks.once('init', async function() {
-// 	Utils.debug('Module initialized.', false);
-// });
+
+Hooks.once('init', async function() {
+	Utils.debug('Module initialized.', false);
+});
 //
 //
 // Hooks.once('setup', function() {
