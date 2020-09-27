@@ -1,7 +1,7 @@
 import Utils from "./module/Utils";
 import WindowManager from "./module/windows/WindowManager";
 import WindowType from "./module/windows/WindowType";
-import {_onDragMouseDown, _onDragMouseMove, _onDragMouseUp} from "./module/windows/DraggableHijack";
+import {_onDragMouseDown, _onDragMouseMove} from "./module/windows/DraggableHijack";
 
 Hooks.once('init', async () => {
     Utils.debug('Module initialized.');
@@ -10,8 +10,6 @@ Hooks.once('init', async () => {
     Draggable.prototype._onDragMouseDown = _onDragMouseDown;
     // @ts-ignore
     Draggable.prototype._onDragMouseMove = _onDragMouseMove;
-    // @ts-ignore
-    Draggable.prototype._onDragMouseUp = _onDragMouseUp;
 });
 
 Hooks.once('setup', () => {

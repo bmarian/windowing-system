@@ -24,24 +24,14 @@ function _onDragMouseDown(event) {
 function _onDragMouseMove(event) {
     event.preventDefault();
 
-    this.app.setPosition({
-        left: this.position.left + (event.clientX - this._initial.x),
-        top: this.position.top + (event.clientY - this._initial.y)
-    });
-}
+    const left = this.position.left + (event.clientX - this._initial.x);
+    const top = this.position.top + (event.clientY - this._initial.y);
 
-/**
- * Conclude the dragging behavior when the mouse is release, setting the final position and removing listeners
- * @private
- */
-function _onDragMouseUp(event) {
-    event.preventDefault();
-    window.removeEventListener(...this.handlers.dragMove);
-    window.removeEventListener(...this.handlers.dragUp);
+    console.log({left, top});
+    this.app.setPosition({left, top});
 }
 
 export {
     _onDragMouseDown,
-    _onDragMouseMove,
-    _onDragMouseUp
+    _onDragMouseMove
 }

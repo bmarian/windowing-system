@@ -230,7 +230,7 @@ abstract class GenericWindow {
             top: 0,
         }
 
-        this._$window.animate(newPosition, 100, () => {
+        this._$window.animate(newPosition, 10, () => {
             this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).hide();
             this._windowObj.position = {...newPosition};
             this._windowObj.resizable = false;
@@ -251,7 +251,7 @@ abstract class GenericWindow {
         this._buttons.$maximizeButton.on('mousedown', this._preventMovement);
         this._buttons.$maximizeButton.on('click', this._resizeEvent.bind(this));
 
-        this._$window.animate(this._lastPositionBeforeMax, 100, () => {
+        this._$window.animate(this._lastPositionBeforeMax, 10, () => {
             this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).show();
             this._windowObj.position = {...this._lastPositionBeforeMax};
             this._windowObj.resizable = true;
@@ -307,8 +307,10 @@ abstract class GenericWindow {
             if (this._isMaximized && this._windowObj.position.top === 0 && newY > oldY) {
 
                 // Simulate the windows behaviour, where the window resizes around the pointer
-                this._lastPositionBeforeMax.left = relativeMousePositionBeforeMove.left - 200;
+                this._lastPositionBeforeMax.left = relativeMousePositionBeforeMove.left - $windowHeader.width() / 2;
                 this._lastPositionBeforeMax.top = relativeMousePositionBeforeMove.top;
+                this._windowObj.position.left = this._lastPositionBeforeMax.left;
+                this._windowObj.position.top = this._lastPositionBeforeMax.top;
                 this._buttons.$restoreButton.trigger('click');
 
                 triggerMouseUp = false;
