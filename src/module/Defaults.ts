@@ -2,8 +2,8 @@ class Defaults {
     private static _instance: Defaults;
     private _defaultClasses = {
         CLOSE_BUTTON_QRY: '.close',
-        WINDOW_HEADER_QRY: '.window-header',
-        WINDOW_TITLE_QRY: '.window-title',
+        WINDOW_HEADER: 'window-header',
+        WINDOW_TITLE: 'window-title',
         CANVAS_QRY: '#board',
         SIDEBAR_QRY: '#sidebar',
         NAVIGATION_QRY: '#navigation',

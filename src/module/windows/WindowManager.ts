@@ -39,25 +39,26 @@ class WindowManager {
         let window: GenericWindow;
         switch (type) {
             case WindowType.ACTOR_SHEET: {
-                const windowExists = this._saveSheetWindow(windowObj);
-                if (!windowExists) window = new SheetWindow(windowObj, $window, options);
+                // const windowExists = this._saveSheetWindow(windowObj);
+                // if (!windowExists) window = new SheetWindow(windowObj, $window, options);
+                window = new SheetWindow(windowObj, $window, options);
                 break;
             }
         }
         window = null;
 
-        Utils.debug('WM window add', this._windows);
+        // Utils.debug('WM window add', this._windows);
     }
 
     public removeWindow(windowObj: any, $window: any, type: WindowType) {
         switch (type) {
             case WindowType.ACTOR_SHEET: {
-                this._deleteSheetWindow(windowObj);
+                // this._deleteSheetWindow(windowObj);
                 break;
             }
         }
 
-        Utils.debug('WM window remove', this._windows);
+        // Utils.debug('WM window remove', this._windows);
     }
 }
 
