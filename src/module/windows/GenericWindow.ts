@@ -7,7 +7,9 @@ abstract class GenericWindow {
     protected _$window: any;
     protected _options: any;
     protected _buttons: any;
-    protected _lastPosition: any = {};
+    protected _lastPositionBeforeMax: any = {};
+    protected _lastPositionBeforeMove: any = {};
+    protected _isMaximized: boolean = false;
     protected _constObjects = {
         $canvas: $(this._defaultClasses.CANVAS_QRY),
     }
@@ -39,9 +41,14 @@ abstract class GenericWindow {
         // Slide-up content
         content.slideUp(100);
 
+        // Check if the window would minimize outside
+        const leftPosition = window.position().left;
+        const left = leftPosition < 0 ? 0 : leftPosition;
+
         // Slide up window height
         return new Promise((resolve) => {
-            window.animate({height: `${header[0].offsetHeight + 1}px`}, 100, () => {
+            window.animate({height: `${header[0].offsetHeight + 1}px`, left}, 100, () => {
+                this._windowObj.setPosition({left});
                 header.children().not(".window-title").not(".close").hide();
                 window.animate({width: MIN_WINDOW_WIDTH}, 100, () => {
                     window.addClass("minimized");
@@ -61,17 +68,21 @@ abstract class GenericWindow {
             header = window.find('.window-header'),
             content = window.find('.window-content');
 
+        const maxPosition = this._isMaximized ? {left: 0, top: 0} : {};
+        this._windowObj.position = {...this._windowObj.position, ...maxPosition};
+
         // Expand window
         return new Promise((resolve) => {
             window.animate({
                 width: this._windowObj.position.width,
-                height: this._windowObj.position.height
+                height: this._windowObj.position.height,
+                ...maxPosition
             }, 100, () => {
                 header.children().show();
                 content.slideDown(100, () => {
                     window.removeClass("minimized");
                     this._windowObj._minimized = false;
-                    window.css({minWidth: '', minHeight: ''});
+                    window.css({minWidth: '', minHeight: '', ...maxPosition});
                     this._windowObj.setPosition(this._windowObj.position);
                     resolve(true);
                 });
@@ -124,8 +135,8 @@ abstract class GenericWindow {
         // Update Left
         if ((pop && !el.style.left) || Number.isFinite(left)) {
             // Add some 20px margins so you can at least find the window again
-            const maxLeft = Math.max(window.innerWidth - 20, 0)
-            const minLeft = Math.min(20 - el.offsetWidth, 0)
+            const maxLeft = Math.max(window.innerWidth - 200, 0)
+            const minLeft = Math.min(200 - el.offsetWidth, 0)
 
             if (!Number.isFinite(left)) left = (window.innerWidth - el.offsetWidth) / 2;
             p.left = Math.clamped(left, minLeft, maxLeft);
@@ -211,17 +222,20 @@ abstract class GenericWindow {
         this._buttons.$restoreButton.on('mousedown', this._preventMovement);
         this._buttons.$restoreButton.on('click', this._resizeEvent.bind(this));
 
-        this._lastPosition = {...this._windowObj.setPosition()};
+        this._lastPositionBeforeMax = {...this._windowObj.setPosition()};
         const newPosition = {
             width: Number(this._constObjects.$canvas.attr('width')),
             height: Number(this._constObjects.$canvas.attr('height')),
             left: 0,
             top: 0,
         }
-        this._windowObj.setPosition(newPosition);
-        this._$window.css(newPosition);
+        this._windowObj.position = newPosition;
+        this._windowObj.resizable = false;
+        this._$window.animate(newPosition, 100);
+        this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).hide();
+        this._isMaximized = true;
 
-        Utils.debug('Maximized: ', {oldPosition: this._lastPosition}, {newPosition});
+        Utils.debug('Maximized: ', {oldPosition: this._lastPositionBeforeMax}, {newPosition});
     }
 
     protected _resizeRestoreEvent(ev: any, $restoreButton: JQuery): void {
@@ -231,10 +245,13 @@ abstract class GenericWindow {
         this._buttons.$maximizeButton.on('mousedown', this._preventMovement);
         this._buttons.$maximizeButton.on('click', this._resizeEvent.bind(this));
 
-        this._windowObj.setPosition(this._lastPosition);
-        this._$window.css(this._lastPosition);
+        this._windowObj.position = {...this._lastPositionBeforeMax};
+        this._windowObj.resizable = true;
+        this._$window.animate(this._lastPositionBeforeMax, 100);
+        this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).show();
+        this._isMaximized = false;
 
-        Utils.debug('Restored: ', {oldPosition: this._lastPosition});
+        Utils.debug('Restored: ', {oldPosition: this._lastPositionBeforeMax});
     }
 
     protected _resizeEvent(ev: any): void {
@@ -260,6 +277,31 @@ abstract class GenericWindow {
         this._buttons.$maximizeButton.on('click', this._resizeEvent.bind(this));
 
         this._buttons.$closeButton.on('click', this._closeEvent.bind(this));
+
+        Utils.debug('Added events on buttons')
+    }
+
+    protected _addEdgeSnapEvents(): void {
+        const $windowHeader = $(`.${this._defaultClasses.WINDOW_HEADER}`);
+        let triggerMouseUp = true;
+
+        const mouseMoveEvent = (event: any): void => {
+
+        };
+        const mouseUpEvent = (event: any): void => {
+            $windowHeader.off('mousemove');
+            if (!triggerMouseUp) return;
+        };
+        const mouseDownEvent = (event: any): void => {
+            if(this._windowObj._minimized) return;
+
+            // this._lastPosition = {...this._windowObj.setPosition()};
+            $windowHeader.on('mousemove', mouseMoveEvent.bind(this));
+            $windowHeader.one('mouseup', mouseUpEvent.bind(this));
+        };
+        $windowHeader.on('mousedown', mouseDownEvent.bind(this));
+
+        Utils.debug('Added edge snap events')
     }
 
     protected _hook(): void {
@@ -267,6 +309,7 @@ abstract class GenericWindow {
         this._generateButtons();
         this._addButtons();
         this._addButtonEvents();
+        this._addEdgeSnapEvents();
     }
 }
 
