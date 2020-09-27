@@ -27,7 +27,6 @@ function _onDragMouseMove(event) {
     const left = this.position.left + (event.clientX - this._initial.x);
     const top = this.position.top + (event.clientY - this._initial.y);
 
-    console.log({left, top});
     this.app.setPosition({left, top});
 }
 

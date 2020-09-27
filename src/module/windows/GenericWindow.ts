@@ -307,10 +307,12 @@ abstract class GenericWindow {
             if (this._isMaximized && this._windowObj.position.top === 0 && newY > oldY) {
 
                 // Simulate the windows behaviour, where the window resizes around the pointer
-                this._lastPositionBeforeMax.left = relativeMousePositionBeforeMove.left - $windowHeader.width() / 2;
-                this._lastPositionBeforeMax.top = relativeMousePositionBeforeMove.top;
-                this._windowObj.position.left = this._lastPositionBeforeMax.left;
-                this._windowObj.position.top = this._lastPositionBeforeMax.top;
+                const left = relativeMousePositionBeforeMove.left - this._lastPositionBeforeMax.width / 2;
+                const top = relativeMousePositionBeforeMove.top;
+
+                this._lastPositionBeforeMax = {...this._lastPositionBeforeMax, left, top}
+                this._windowObj.position = {...this._windowObj.position, left, top}
+
                 this._buttons.$restoreButton.trigger('click');
 
                 triggerMouseUp = false;
