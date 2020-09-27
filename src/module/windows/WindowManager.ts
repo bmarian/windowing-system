@@ -1,6 +1,7 @@
 import WindowType from "./WindowType";
 import SheetWindow from "./SheetWindow";
 import Utils from "../Utils";
+import GenericWindow from "./GenericWindow";
 
 class WindowManager {
     private static _instance: WindowManager;
@@ -14,11 +15,16 @@ class WindowManager {
         return WindowManager._instance;
     }
 
-    private _saveSheetWindow(sheet: SheetWindow): void {
-        const saveData = sheet.getSaveObject();
+    private _saveSheetWindow(windowObj: any): boolean {
+        const saveData = {
+            id: windowObj?.object?._id,
+            hasToken: windowObj?.token !== null,
+        }
 
         const exists = this._windows.some(el => el?.id === saveData.id && el?.hasToken === saveData.hasToken);
         if (!exists) this._windows.push(saveData);
+
+        return exists;
     }
 
     private _deleteSheetWindow(windowObj: any): void {
@@ -30,17 +36,17 @@ class WindowManager {
     }
 
     public addWindow(windowObj: any, $window: any, options: any, type: WindowType): void {
-        let window = null;
+        let window: GenericWindow;
         switch (type) {
             case WindowType.ACTOR_SHEET: {
-                window = new SheetWindow(windowObj, $window, options);
-                this._saveSheetWindow(window);
+                const windowExists = this._saveSheetWindow(windowObj);
+                if (!windowExists) window = new SheetWindow(windowObj, $window, options);
                 break;
             }
         }
         window = null;
 
-        Utils.debug(this._windows);
+        Utils.debug('WM window add', this._windows);
     }
 
     public removeWindow(windowObj: any, $window: any, type: WindowType) {
@@ -51,7 +57,7 @@ class WindowManager {
             }
         }
 
-        Utils.debug(this._windows);
+        Utils.debug('WM window remove', this._windows);
     }
 }
 

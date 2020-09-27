@@ -22,7 +22,7 @@ class Utils {
             `%c${this.moduleTitle} %c|`,
             'color: #00a2ed',
             'color: #fff',
-            output
+            ...output
         );
     }
 
@@ -31,16 +31,16 @@ class Utils {
             `%c${this.moduleTitle} %c|`,
             'color: #00a2ed',
             'color: #fff',
-            output
+            ...output
         );
         console.trace();
         console.groupEnd();
     }
 
-    public debug(output: any, doTrace?: boolean): void {
+    public debug(...output: any): void {
         if (!this._debugging) return;
 
-        if (this._trace && doTrace !== false) {
+        if (this._trace) {
             this._consoleTrace(output);
         } else {
             this._consoleLog(output);
