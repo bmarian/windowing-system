@@ -20,7 +20,7 @@ class Utils {
     private _consoleLog(output: any): void {
         console.log(
             `%c${this.moduleTitle} %c|`,
-            'background: #222; color: #bada55',
+            'color: #00a2ed',
             'color: #fff',
             output
         );
@@ -29,7 +29,7 @@ class Utils {
     private _consoleTrace(output: any): void {
         console.groupCollapsed(
             `%c${this.moduleTitle} %c|`,
-            'background: #222; color: #bada55',
+            'color: #00a2ed',
             'color: #fff',
             output
         );

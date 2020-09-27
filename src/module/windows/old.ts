@@ -1,6 +1,9 @@
 import Defaults from "../Defaults";
 import Utils from "../Utils";
 
+/**
+ * THIS SHOULD BE REMOVED SOON
+ */
 class ActorSheetWindow {
     private static _instance: ActorSheetWindow;
     private _defaultClasses = Defaults.getDefaultClasses();

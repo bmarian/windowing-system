@@ -21,3 +21,7 @@ Hooks.once('init', async function() {
 Hooks.on('renderActorSheet', (sheetObj: any, $sheet: any, options: any): void => {
 	WindowManager.addWindow(sheetObj, $sheet, options, WindowType.ACTOR_SHEET);
 });
+
+Hooks.on('closeActorSheet', (sheetObj: any, $sheet: any): void => {
+	WindowManager.removeWindow(sheetObj, $sheet, WindowType.ACTOR_SHEET);
+});

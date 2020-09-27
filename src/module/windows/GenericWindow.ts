@@ -1,11 +1,11 @@
 import Defaults from "../Defaults";
 import Utils from "../Utils";
 
-class GenericWindow {
-    private _defaultClasses = Defaults.getDefaultClasses();
-    private _windowObj: any;
-    private _$window: any;
-    private _options: any;
+abstract class GenericWindow {
+    protected _defaultClasses = Defaults.getDefaultClasses();
+    protected _windowObj: any;
+    protected _$window: any;
+    protected _options: any;
 
     constructor(windowObj: any, $window: any, options: any) {
         this._windowObj = windowObj;
@@ -15,12 +15,13 @@ class GenericWindow {
         this._hook();
     }
 
-    private _generateButtons($closeButton: JQuery): string {
+    public abstract getSaveObject(): Object;
+
+    protected _generateButtons($closeButton: JQuery): string {
         return '';
     }
 
-    private _hook(): void {
-        Utils.debug('Some hook')
+    protected _hook(): void {
     }
 }
 
