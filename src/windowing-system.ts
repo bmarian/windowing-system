@@ -1,9 +1,17 @@
 import Utils from "./module/Utils";
 import WindowManager from "./module/windows/WindowManager";
 import WindowType from "./module/windows/WindowType";
+import {_onDragMouseDown, _onDragMouseMove, _onDragMouseUp} from "./module/windows/DraggableHijack";
 
 Hooks.once('init', async () => {
     Utils.debug('Module initialized.');
+
+    // @ts-ignore
+    Draggable.prototype._onDragMouseDown = _onDragMouseDown;
+    // @ts-ignore
+    Draggable.prototype._onDragMouseMove = _onDragMouseMove;
+    // @ts-ignore
+    Draggable.prototype._onDragMouseUp = _onDragMouseUp;
 });
 
 Hooks.once('setup', () => {
@@ -11,7 +19,7 @@ Hooks.once('setup', () => {
 });
 
 Hooks.once('ready', () => {
-	Utils.debug('Module ready.');
+    Utils.debug('Module ready.');
 });
 
 Hooks.on('renderActorSheet', (sheetObj: any, $sheet: any, options: any): void => {

@@ -8,8 +8,8 @@ abstract class GenericWindow {
     protected _options: any;
     protected _buttons: any;
     protected _lastPositionBeforeMax: any = {};
-    protected _lastPositionBeforeMove: any = {};
     protected _isMaximized: boolean = false;
+    protected _snapThreshold = 20;
     protected _constObjects = {
         $canvas: $(this._defaultClasses.CANVAS_QRY),
     }
@@ -222,20 +222,26 @@ abstract class GenericWindow {
         this._buttons.$restoreButton.on('mousedown', this._preventMovement);
         this._buttons.$restoreButton.on('click', this._resizeEvent.bind(this));
 
-        this._lastPositionBeforeMax = {...this._windowObj.setPosition()};
+        this._lastPositionBeforeMax = {...this._windowObj.position};
         const newPosition = {
             width: Number(this._constObjects.$canvas.attr('width')),
             height: Number(this._constObjects.$canvas.attr('height')),
             left: 0,
             top: 0,
         }
-        this._windowObj.position = newPosition;
-        this._windowObj.resizable = false;
-        this._$window.animate(newPosition, 100);
-        this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).hide();
-        this._isMaximized = true;
 
-        Utils.debug('Maximized: ', {oldPosition: this._lastPositionBeforeMax}, {newPosition});
+        this._$window.animate(newPosition, 100, () => {
+            this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).hide();
+            this._windowObj.position = {...newPosition};
+            this._windowObj.resizable = false;
+            this._isMaximized = true;
+
+            this._$window.css(newPosition);
+            this._windowObj.setPosition(this._windowObj.position);
+
+            Utils.debug('Maximized: ', {oldPosition: this._lastPositionBeforeMax}, {newPosition});
+        });
+
     }
 
     protected _resizeRestoreEvent(ev: any, $restoreButton: JQuery): void {
@@ -245,13 +251,17 @@ abstract class GenericWindow {
         this._buttons.$maximizeButton.on('mousedown', this._preventMovement);
         this._buttons.$maximizeButton.on('click', this._resizeEvent.bind(this));
 
-        this._windowObj.position = {...this._lastPositionBeforeMax};
-        this._windowObj.resizable = true;
-        this._$window.animate(this._lastPositionBeforeMax, 100);
-        this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).show();
-        this._isMaximized = false;
+        this._$window.animate(this._lastPositionBeforeMax, 100, () => {
+            this._$window.find(this._defaultClasses.RESIZABLE_HANDLE_QRY).show();
+            this._windowObj.position = {...this._lastPositionBeforeMax};
+            this._windowObj.resizable = true;
+            this._isMaximized = false;
 
-        Utils.debug('Restored: ', {oldPosition: this._lastPositionBeforeMax});
+            this._$window.css(this._lastPositionBeforeMax);
+            this._windowObj.setPosition(this._windowObj.position);
+
+            Utils.debug('Restored: ', {oldPosition: this._lastPositionBeforeMax});
+        });
     }
 
     protected _resizeEvent(ev: any): void {
@@ -282,10 +292,28 @@ abstract class GenericWindow {
     }
 
     protected _addEdgeSnapEvents(): void {
+        if (this._windowObj.resizable === false) return;
+
         const $windowHeader = $(`.${this._defaultClasses.WINDOW_HEADER}`);
+        let lastPositionBeforeMove: any = {};
+        let relativeMousePositionBeforeMove: any = {};
         let triggerMouseUp = true;
+        let oldY = 0;
 
         const mouseMoveEvent = (event: any): void => {
+            event.preventDefault();
+
+            const newY = event.clientY;
+            if (this._isMaximized && this._windowObj.position.top === 0 && newY > oldY) {
+
+                // Simulate the windows behaviour, where the window resizes around the pointer
+                this._lastPositionBeforeMax.left = relativeMousePositionBeforeMove.left - 200;
+                this._lastPositionBeforeMax.top = relativeMousePositionBeforeMove.top;
+                this._buttons.$restoreButton.trigger('click');
+
+                triggerMouseUp = false;
+            }
+            oldY = newY;
 
         };
         const mouseUpEvent = (event: any): void => {
@@ -293,9 +321,15 @@ abstract class GenericWindow {
             if (!triggerMouseUp) return;
         };
         const mouseDownEvent = (event: any): void => {
-            if(this._windowObj._minimized) return;
+            if (this._windowObj._minimized) return;
 
-            // this._lastPosition = {...this._windowObj.setPosition()};
+            oldY = event.clientY;
+            lastPositionBeforeMove = {...this._windowObj.position};
+            relativeMousePositionBeforeMove = {
+                left: event.clientX - $windowHeader.offset().left,
+                top: event.clientY - $windowHeader.offset().top,
+            };
+
             $windowHeader.on('mousemove', mouseMoveEvent.bind(this));
             $windowHeader.one('mouseup', mouseUpEvent.bind(this));
         };
