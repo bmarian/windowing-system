@@ -12,6 +12,10 @@ class Defaults {
         RESIZABLE_HANDLE_QRY: '.window-resizable-handle',
     };
 
+    private _supportedWindowTypes = {
+
+    }
+
     private constructor() {
     }
 
